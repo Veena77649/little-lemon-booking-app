@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Little Lemon Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- React CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #fefefe;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      max-width: 300px;
+    }
+    input, select {
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    span {
+      color: red;
+      font-size: 0.8rem;
+    }
+    @media (max-width: 600px) {
+      form {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+
+    function BookingForm({ onSubmit }) {
+      const [formData, setFormData] = React.useState({
+        name: "",
+        date: "",
+        time: "",
+        guests: "1",
+      });
+
+      const [errors, setErrors] = React.useState({});
+
+      const validate = () => {
+        const errs = {};
+        if (!formData.name.trim()) errs.name = "Name is required";
+        if (!formData.date) errs.date = "Date is required";
+        if (!formData.time) errs.time = "Time is required";
+        return errs;
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const errs = validate();
+        if (Object.keys(errs).length === 0) {
+          onSubmit(formData);
+        } else {
+          setErrors(errs);
+        }
+      };
+
+      const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+      };
+
+      return (
+        <form aria-label="Reservation Form" onSubmit={handleSubmit}>
+          <label htmlFor="name">Name:</label>
+          <input id="name" name="name" value={formData.name} onChange={handleChange} />
+          {errors.name && <span>{errors.name}</span>}
+
+          <label htmlFor="date">Date:</label>
+          <input type="date" id="date" name="date" value={formData.date} onChange={handleChange} />
+          {errors.date && <span>{errors.date}</span>}
+
+          <label htmlFor="time">Time:</label>
+          <select id="time" name="time" value={formData.time} onChange={handleChange}>
+            <option value="">Select Time</option>
+            <option value="18:00">6:00 PM</option>
+            <option value="19:00">7:00 PM</option>
+            <option value="20:00">8:00 PM</option>
+          </select>
+          {errors.time && <span>{errors.time}</span>}
+
+          <label htmlFor="guests">Guests:</label>
+          <input
+            type="number"
+            id="guests"
+            name="guests"
+            value={formData.guests}
+            onChange={handleChange}
+            min="1"
+            max="10"
+          />
+
+          <button type="submit">Book Table</button>
+        </form>
+      );
+    }
+
+    function Confirmation({ booking }) {
+      return (
+        <section>
+          <h2>Reservation Confirmed!</h2>
+          <p>
+            Thank you, <strong>{booking.name}</strong>.<br />
+            Your table is booked for <strong>{booking.date}</strong> at{" "}
+            <strong>{booking.time}</strong> for <strong>{booking.guests}</strong> guest(s).
+          </p>
+        </section>
+      );
+    }
+
+    function App() {
+      const [submitted, setSubmitted] = React.useState(false);
+      const [bookingData, setBookingData] = React.useState(null);
+
+      const handleBookingSubmit = (data) => {
+        setBookingData(data);
+        setSubmitted(true);
+      };
+
+      return (
+        <main>
+          <h1 aria-label="Little Lemon Restaurant Booking">Little Lemon Booking</h1>
+          {submitted ? (
+            <Confirmation booking={bookingData} />
+          ) : (
+            <BookingForm onSubmit={handleBookingSubmit} />
+          )}
+        </main>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
